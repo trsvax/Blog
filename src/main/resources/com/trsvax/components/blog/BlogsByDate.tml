@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en"
+xmlns:t="http://tapestry.apache.org/schema/tapestry_5_1_0.xsd"
+      xmlns:p="tapestry:parameter">
+      
+      <t:grid t:id="blogs" row="blog" include="creationdate,title">
+      <p:titleCell>
+      	<t:pagelink page="index" context="blog">${blog.title}</t:pagelink>
+      </p:titleCell>
+      </t:grid>
+</html>

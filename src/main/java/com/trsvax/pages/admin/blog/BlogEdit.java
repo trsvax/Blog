@@ -1,32 +1,35 @@
-package com.trsvax.pages;
+package com.trsvax.pages.admin.blog;
 
-import org.apache.tapestry5.annotations.BeginRender;
+import java.util.Date;
+
 import org.apache.tapestry5.annotations.PageActivationContext;
 import org.apache.tapestry5.annotations.Property;
 import org.apache.tapestry5.ioc.annotations.Inject;
 
+import com.trsvax.entities.BlogImpl;
 import com.trsvax.interfaces.dao.BlogDAO;
 import com.trsvax.interfaces.entities.Blog;
 
-/**
- * Start page of application blog.
- */
-public class Index
-{
+public class BlogEdit {
+	
 	@PageActivationContext
 	@Property
-	private Blog blog;
+	private Blog entry;
 	
 	@Inject
 	private BlogDAO dao;
 	
 	
-	@BeginRender
-	void init() {
-		if ( blog == null ) {
-			blog = dao.latest();
+	void onActivate() {
+		if ( entry == null ) {
+			entry = new BlogImpl();
+			entry.setCreationDate(new Date());
 		}
 	}
+	
+	Object onSuccess() {
+		dao.save(entry);
+		return BlogIndex.class;
+	}
 
-    
 }
