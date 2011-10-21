@@ -1,9 +1,7 @@
-<html t:type="layout" title="About"
+<html t:type="layout" title="About blog"
       xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
       xmlns:p="tapestry:parameter">
 
-   <p>This is just a quick Tapestry application to document building Tapestry applications</p>
-   
-   Source code on <a href="https://github.com/trsvax/Blog">GitHub</a>
+    <p>About blog application ...</p>
 
 </html>

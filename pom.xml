@@ -21,18 +21,6 @@
             <groupId>org.apache.tapestry</groupId>
             <artifactId>tapestry-yuicompressor</artifactId>
             <version>${tapestry-release-version}</version>
-        </dependency>        
-        
-		<dependency>
-		  <groupId>org.tynamo</groupId>
-		  <artifactId>tapestry-security</artifactId>
-		  <version>0.4.0</version>
-		</dependency>
-		
-		<dependency>
-    	   <groupId>com.trsvax</groupId>
-    	   <artifactId>tapestry-aws-core</artifactId>
-    	   <version>0.0.2-SNAPSHOT</version>
         </dependency>
 
         <!-- Uncomment this to add support for file uploads:
@@ -86,8 +74,7 @@ of testing facilities designed for use with TestNG (http://testng.org/), so it's
             <scope>provided</scope>
         </dependency>
 
-
-        </dependencies>
+    </dependencies>
     <build>
         <finalName>blog</finalName>
         <plugins>
@@ -148,7 +135,7 @@ of testing facilities designed for use with TestNG (http://testng.org/), so it's
     </repositories>
 
     <properties>
-        <tapestry-release-version>5.3-beta-23</tapestry-release-version>
+        <tapestry-release-version>5.3-beta-21</tapestry-release-version>
         <servlet-api-release-version>2.4</servlet-api-release-version>
         <testng-release-version>5.14.9</testng-release-version>
         <easymock-release-version>3.0</easymock-release-version>

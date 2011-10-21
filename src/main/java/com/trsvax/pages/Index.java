@@ -1,32 +1,50 @@
 package com.trsvax.pages;
 
-import org.apache.tapestry5.annotations.BeginRender;
-import org.apache.tapestry5.annotations.PageActivationContext;
-import org.apache.tapestry5.annotations.Property;
-import org.apache.tapestry5.ioc.annotations.Inject;
-
-import com.trsvax.interfaces.dao.BlogDAO;
-import com.trsvax.interfaces.entities.Blog;
+import java.util.Date;
+import org.apache.tapestry5.annotations.*;
+import org.apache.tapestry5.ioc.annotations.*;
+import org.apache.tapestry5.corelib.components.*;
+import org.apache.tapestry5.SymbolConstants;
+import org.apache.tapestry5.alerts.AlertManager;
 
 /**
  * Start page of application blog.
  */
 public class Index
 {
-	@PageActivationContext
-	@Property
-	private Blog blog;
-	
-	@Inject
-	private BlogDAO dao;
-	
-	
-	@BeginRender
-	void init() {
-		if ( blog == null ) {
-			blog = dao.latest();
-		}
-	}
+    @Property
+    @Inject
+    @Symbol(SymbolConstants.TAPESTRY_VERSION)
+    private String tapestryVersion;
 
-    
+    @InjectComponent
+    private Zone zone;
+
+    @Persist
+    @Property
+    private int clickCount;
+
+    @Inject
+    private AlertManager alertManager;
+
+    public Date getCurrentTime()
+    {
+        return new Date();
+    }
+
+    void onActionFromIncrement()
+    {
+        alertManager.info("Increment clicked");
+
+        clickCount++;
+    }
+
+    Object onActionFromIncrementAjax()
+    {
+        clickCount++;
+
+        alertManager.info("Increment (via Ajax) clicked");
+
+        return zone;
+    }
 }
