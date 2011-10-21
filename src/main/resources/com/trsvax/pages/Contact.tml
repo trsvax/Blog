@@ -1,0 +1,11 @@
+<html t:type="layout" title="Contact"
+      xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+      xmlns:p="tapestry:parameter">
+
+<p>
+    <dl>
+    <dt>Name</dt><dd>Barry Books</dd>
+    <dt>Email</dt><dd>trsvax@gmail.com</dd>
+    </dl>
+</p>
+</html>

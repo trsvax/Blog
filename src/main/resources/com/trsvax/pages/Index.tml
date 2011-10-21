@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html t:type="layout" title="prop:blog.title"
+      xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+      xmlns:p="tapestry:parameter">
+
+    <p>${message:greeting}</p>
+  
+	<t:if test="blog">
+   	<t:blog.blogview t:id="blog"/>
+   	</t:if>
+
+    
+</html>

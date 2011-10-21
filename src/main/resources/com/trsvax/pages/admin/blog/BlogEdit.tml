@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html t:type="layout" title="blog edit"
+      xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+      xmlns:p="tapestry:parameter">
+
+   <t:beaneditform t:id="entry" reorder="title,published,body">
+    	<p:body>
+      		<t:label for="body"/>
+      		<t:textarea t:id="body" value="entry.body"/>
+    	</p:body>   	
+   </t:beaneditform>
+
+</html>
