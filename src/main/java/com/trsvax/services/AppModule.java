@@ -71,7 +71,7 @@ public class AppModule
     
 
     public static void contributeWebSecurityManager(Configuration<Realm> configuration) {
-        ExtendedPropertiesRealm realm = new ExtendedPropertiesRealm("classpath:shiro-users.properties");
+        ExtendedPropertiesRealm realm = new ExtendedPropertiesRealm(System.getenv("HOME") + "/.shiro/blog.ini");
         configuration.add(realm);
     }
     

@@ -37,4 +37,76 @@ Now that those are out of the way here are the more technical ones.
 	</ul>
 	</ul>
 </ul>
+
+<h3>Implementation</h3>
+<h4>S3 Data Store</h4>
+<p>
+I've been using S3 for a number of years and when they release a Java SDK I created a set of Tapestry Services 
+for many of the AWS products. 
+It's a good example of how easy it is to create services from a library. The code is on
+<a href="https://github.com/trsvax/tapestry-aws-core">GitHub</a>.
+</p>
+<p>
+The 
+<a href="https://github.com/trsvax/Blog/blob/master/src/main/java/com/trsvax/interfaces/entities/Blog.java">entity</a> 
+and <a hre="https://github.com/trsvax/Blog/blob/master/src/main/java/com/trsvax/services/AWSImpl/BlogDAOAWS.java">dao</a> 
+are pretty simple. I've used an interface for the entity so it's easier to swap data stores when needed. I thought about
+just serializing the entity into S3 but decided to use the S3 metadata to store the small fields. 
+This makes it easier to change the entity in the future. The dao caches all the blogs and invalidates the cache on a save.
+I don't expect to be updating that often and caching in ram should be OK for now.
+</p>
+<h4>Security</h4>
+<p>
+I always use <a href="http://tynamo.org/tapestry-security+guide">Tynamo Security</a> now. It's simple enough for simple cases
+but can also handle complex ones. For this site I want one user and I want to protect the admin urls. Here is the 30 second guide:
+<ol>
+<li>List the directories you want to protect.
+<pre>
+<code>
+public static void contributeSecurityConfiguration(Configuration<SecurityFilterChain> configuration,
+           SecurityFilterChainFactory factory) {
+   	configuration.add(factory.createChain("/admin/**").add(factory.roles(), "admin").build());
+}
+</code>
+</pre>
+</li>
+<li>Specify the location of the users property file.
+<pre>
+<code>
+public static void contributeWebSecurityManager(Configuration<Realm> configuration) {
+    ExtendedPropertiesRealm realm = new ExtendedPropertiesRealm(System.getenv("HOME") + "/.shiro/blog.ini);
+    configuration.add(realm);
+}
+</code>
+</pre>
+</li>
+</ol>
+That's it. If you want to know more I suggest reading the guide on the Tynamo site.
+</p>
+<h4>Layout Template</h4>
+<p>
+I just used one of the examples from <a href="https://github.com/twitter/bootstrap">Twitter Bootstrap</a> to create the
+<a href="https://github.com/trsvax/Blog/blob/master/src/main/resources/com/trsvax/components/Layout.tml">layout</a>. So 
+far I'm pretty happy with the result. The grid systems seems pretty handy for putting something together quickly.
+Someday I'll make the login form work with Tynamo.
+</p>
+<h3>Conclusion</h3>
+<p>
+I spent about 8 hours thinking about the project, writing the code and documenting it. Unfortunately a big piece of that was tracking down a Maven
+build problem. The AWS JDK uses wildcards to match library versions and for some reason it wanted to use a 
+broken snapshot version of commons-logging. After much searching I finally discovered this.
+<pre>
+<code>
+&lt;exclusion&gt;
+     		&lt;groupId&gt;commons-logging&lt;/groupId&gt;
+     		&lt;artifactId&gt;commons-logging&lt;/artifactId&gt;
+&lt;/exclusion&gt;
+</code>
+</pre>
+I also wasted some time thinking about using something other than Tynamo for security. Note to self: Just use Tynamo!
+</p>
+<p>
+So the app is pretty simple but it gets the job done. I suspect I'll add a few things along the way but the next project
+is going to be an ecommerce site.
+</p>
 </div>

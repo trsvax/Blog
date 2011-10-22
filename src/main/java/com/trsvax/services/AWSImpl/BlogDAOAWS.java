@@ -77,7 +77,7 @@ public class BlogDAOAWS implements BlogDAO {
 		metadata.setContentType("text/html");
 		metadata.addUserMetadata("title", entry.getTitle());
 		metadata.addUserMetadata("published", entry.getPublished() ? "t" : "f");
-		metadata.addUserMetadata("creationDate", formatter.format(entry.getCreationDate()));
+		metadata.addUserMetadata("creationdate", formatter.format(entry.getCreationDate()));
 
 		PutObjectRequest request = new PutObjectRequest(bucketName, entry.getKey().toString(), 
 				new ByteArrayInputStream(entry.getBody().getBytes()), metadata);
@@ -103,33 +103,34 @@ public class BlogDAOAWS implements BlogDAO {
 	Blog from(S3Object o) {
 		Map<String,String> data = o.getObjectMetadata().getUserMetadata();
 		
-		Blog entry = new BlogImpl();
-		entry.setCreationDate(o.getObjectMetadata().getLastModified());
-		entry.setKey(o.getKey());
-		entry.setTitle(data.get("title"));
+		Blog blog = new BlogImpl();
+		blog.setKey(o.getKey());
+		blog.setTitle(data.get("title"));
 		try {
-			entry.setCreationDate(formatter.parse(data.get("creationDate")));
+			blog.setCreationDate(formatter.parse(data.get("creationdate")));
 		} catch (Exception e1) {
-			logger.error("can't format {}",data.get("creationDate"));
+			logger.error("can't format {}",data.get("creationdate"));
 		}
 		if ( data.get("published") != null && data.get("published").equals("t")) {
-			entry.setPublished(true);
+			blog.setPublished(true);
 		} else {
-			entry.setPublished(false);
+			blog.setPublished(false);
 		}		
-		byte[] b = new byte[(int) o.getObjectMetadata().getContentLength()];
+		
 		try {
+			byte[] b = new byte[(int) o.getObjectMetadata().getContentLength()];
 			o.getObjectContent().read(b);
+			blog.setBody(new String(b));
 		} catch (IOException e) {
 			logger.error("Can't read body {}",e);
-		}
-		try {
-			o.getObjectContent().close();
-		} catch (IOException e) {
-			logger.error("Can't close {}",e);
-		}
-		entry.setBody(new String(b));
-		return entry;
+		} finally {
+			try {
+				o.getObjectContent().close();
+			} catch (IOException e) {
+				logger.error("Can't close {}",e);
+			}
+		}		
+		return blog;
 	}
 
 }

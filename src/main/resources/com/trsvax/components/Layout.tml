@@ -65,6 +65,10 @@ xmlns:t="http://tapestry.apache.org/schema/tapestry_5_1_0.xsd"
       .topbar .btn {
         border: 0;
       }
+      
+      code {
+      	 line-height: 20px;
+      }
 
     </style>
 
