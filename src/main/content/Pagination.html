@@ -1,0 +1,44 @@
+<div>
+<h3>Overview</h3>
+I'm happy with the Twitter Bootstrap templates I used on the Blog project and I think I'll be using them again
+so it's time to create a library. I know I'm going to need pagination in my next project so let's start there.
+<h3>Requirements</h3>
+<ol>
+<li>Support the bootstramp pageination css</li>
+<li>Pages can be bookmarked</li>
+<li>The component should be stand alone</li>
+<li>Page control by event or URL parameter</li>
+</ol>
+<h3>Implementation</h3>
+<p>
+I just use Maven to create a Tapestry project and then delete the stuff I don't need for a library. In this case that's webapp and pages.
+Also change the name of AppModule.java and the pom target to jar.
+</p>
+<p>
+For now I'm just going to create a pagination component.
+There is not much markup needed and a lot of flow control so I'm just putting everything in
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/components/Pagination.java">Pagination.java</a>.
+The only real trick to this is using the ActivationRequestParameter annotation from the currentPage parameter to drive the link type.
+The container can specify this by just declaring
+<code>
+<pre>
+    @Property
+    @ActivationRequestParameter("pagination")
+    private Integer currentPage;
+</pre>
+</code>
+and
+<code>
+<pre>
+&lt;t:tb.pagination itemCount="literal:16" currentPage="currentPage"/&gt;
+</pre>
+</code>
+in the template. The component will pick up the annotation from currentPage and use that to add a url parameter to the links.
+If no annotation is provided the component will use events to move from page to page.
+<h3>Conclusion</h3>
+<p>
+I like to just start with a library when I think I might share code between projects. They are easy to create and github makes
+them easy to share. There is more to be done here and I'll revisit this library soon, but this is what I need to build the
+next piece, a gallery component. 
+</p>
+</div>

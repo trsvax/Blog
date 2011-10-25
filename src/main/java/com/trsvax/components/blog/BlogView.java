@@ -7,6 +7,7 @@ import com.trsvax.interfaces.entities.Blog;
 
 public class BlogView {
 	
+	
 	@Parameter(autoconnect=true)
 	@Property
 	private Blog blog;
