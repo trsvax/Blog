@@ -1,6 +1,7 @@
 package com.trsvax.entities;
 
 import java.util.Date;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import com.trsvax.interfaces.entities.Blog;
 
@@ -44,5 +45,9 @@ public class BlogImpl implements Blog {
 		this.published = published;
 	}
 	
+	public static class Adapter extends XmlAdapter<BlogImpl,Blog> {
+		public Blog unmarshal(BlogImpl v) { return v; }
+		public BlogImpl marshal(Blog v) { return (BlogImpl)v; }
+	  }
 
 }

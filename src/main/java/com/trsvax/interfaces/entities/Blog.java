@@ -2,8 +2,14 @@ package com.trsvax.interfaces.entities;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.tapestry5.beaneditor.NonVisual;
 import org.apache.tapestry5.beaneditor.Validate;
+
+import com.trsvax.entities.BlogImpl;
+
 
 public interface Blog {
 	

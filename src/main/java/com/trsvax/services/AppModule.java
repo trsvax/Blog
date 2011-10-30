@@ -35,6 +35,7 @@ public class AppModule
     public static void bind(ServiceBinder binder)
     {
        binder.bind(BlogDAO.class,BlogDAOAWS.class);
+       binder.bind(XML.class,XMLImpl.class);
        binder.bind(AWSCredentials.class, new ServiceBuilder<AWSCredentials>() {
 			public AWSCredentials buildService(ServiceResources serviceResources) {
 				try {

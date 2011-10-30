@@ -1,5 +1,6 @@
 package com.trsvax.pages;
 
+import org.apache.tapestry5.annotations.ActivationRequestParameter;
 import org.apache.tapestry5.annotations.BeginRender;
 import org.apache.tapestry5.annotations.Import;
 import org.apache.tapestry5.annotations.PageActivationContext;
@@ -8,6 +9,8 @@ import org.apache.tapestry5.ioc.annotations.Inject;
 
 import com.trsvax.interfaces.dao.BlogDAO;
 import com.trsvax.interfaces.entities.Blog;
+import com.trsvax.services.XML;
+import com.trsvax.xml.Blogs;
 
 /**
  * Start page of application blog.
@@ -20,8 +23,22 @@ public class Index
 	@Property
 	private Blog blog;
 	
+	@ActivationRequestParameter
+	private String feed;
+	
 	@Inject
 	private BlogDAO dao;
+	
+	@Inject
+	private XML xml;
+	
+	Object onActivate() {
+		if ( feed != null ) {
+			String rss = "/WEB-INF/xslt/rss.xslt";
+			return xml.streamWithStyle(new Blogs(dao.published()), "text/xml", rss , null);
+		}
+		return null;
+	}
 	
 	
 	@BeginRender
