@@ -33,9 +33,8 @@ public class Index
 	private XML xml;
 	
 	Object onActivate() {
-		if ( feed != null ) {
-			String rss = "/WEB-INF/xslt/rss.xslt";
-			return xml.streamWithStyle(new Blogs(dao.published()), "text/xml", rss , null);
+		if ( feed != null && feed.equals("rss")) {
+			return xml.streamWithStyle(new Blogs(dao.published()), "application/rss+xml", "/WEB-INF/xslt/rss.xslt" , null);
 		}
 		return null;
 	}

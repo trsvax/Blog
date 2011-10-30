@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 public class XMLImpl  implements XML {
 	private final Logger logger;
 	private final ApplicationGlobals globals;
-	TransformerFactory factory = TransformerFactory.newInstance();
+	private final TransformerFactory factory = TransformerFactory.newInstance();
 	
 	public XMLImpl(Logger logger,ApplicationGlobals globals) {
 		this.logger = logger;
@@ -34,15 +34,16 @@ public class XMLImpl  implements XML {
 			final Map<String, String> args) {
 				
 		return new StreamResponse() {
-			ByteArrayOutputStream os;
+			InputStream inputStream;
 			
 			public void prepareResponse(Response response) {
-				os = transform(java2xml(object), xslt, args);
+				ByteArrayOutputStream os = transform(java2xml(object), xslt, args);
 				response.setContentLength(os.size());
+				inputStream = new ByteArrayInputStream(os.toByteArray());
 			}
 			
 			public InputStream getStream() throws IOException {
-				return new ByteArrayInputStream(os.toByteArray()) ;
+				return inputStream ;
 			}
 			
 			public String getContentType() {
