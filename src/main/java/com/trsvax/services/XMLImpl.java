@@ -18,7 +18,6 @@ import org.apache.tapestry5.services.Response;
 import org.slf4j.Logger;
 
 
-@SuppressWarnings("restriction")
 public class XMLImpl  implements XML {
 	private final Logger logger;
 	private final ApplicationGlobals globals;

@@ -8,13 +8,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.trsvax.entities.BlogImpl;
 import com.trsvax.interfaces.entities.Blog;
 
-@SuppressWarnings("restriction")
 @XmlRootElement
 public class Blogs {
 	private List<Blog> blogs;
 	
-	public Blogs() {
-		
+	public Blogs() {		
 	}
 	
 	public Blogs(List<Blog> blogs) {
@@ -26,6 +24,5 @@ public class Blogs {
 	public List<Blog> getBlogs() {
 		return blogs;
 	}
-	
-	
+		
 }
