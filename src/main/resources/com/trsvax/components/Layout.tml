@@ -123,7 +123,7 @@ xmlns:t="http://tapestry.apache.org/schema/tapestry_5_1_0.xsd"
             This site is running Tapestry version <strong>${tapestryVersion}</strong>.
         	</p>
         	<p>
-        	The code is available on at <a href="https://github.com/trsvax/Blog">trsvax/Blog</a>
+        	The code is available at <a href="https://github.com/trsvax/Blog">trsvax/Blog</a>
         	</p>
 			<t:alerts/>
           </div>
