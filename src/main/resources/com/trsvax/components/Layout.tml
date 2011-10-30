@@ -5,7 +5,7 @@ xmlns:t="http://tapestry.apache.org/schema/tapestry_5_1_0.xsd"
   <head>
     <meta charset="utf-8"/>
     <title>${title}</title>
-    <link rel="alternate" type="application/rss+xml" href="feed://trsvax.com/blogs/?feed=.rss" title="Barry's Tapestry Blog"/>
+    <link rel="alternate" type="application/rss+xml" href="feed://trsvax.com/blog/?feed=.rss" title="Barry's Tapestry Blog"/>
     <meta name="description" content=""/>
     <meta name="author" content="Barry Books"/>
     
@@ -117,7 +117,7 @@ xmlns:t="http://tapestry.apache.org/schema/tapestry_5_1_0.xsd"
             <h3>${sidebarTitle}</h3>
             <t:delegate to="sidebar"/>
             <p>
-            <a type="application/rss+xml" href="http://trsvax.com/blogs/?feed=rss">RSS feed for this page</a>
+            <a type="application/rss+xml" href="http://trsvax.com/blog/?feed=rss">RSS feed for this page</a>
             </p>
             <p>
             This site is running Tapestry version <strong>${tapestryVersion}</strong>.
