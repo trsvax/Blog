@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -47,7 +46,7 @@ public class XMLImpl  implements XML {
 			}
 			
 			public String getContentType() {
-				return mimetype;
+				return mimetype == null ? "text/xml" : mimetype;
 			}
 		};
 	}
