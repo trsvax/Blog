@@ -1,0 +1,102 @@
+<div>
+<h2>Overview</h2>
+<p>
+I've been thinking about how to integrate the loop with the pagination control. I'd like them to to remain independent
+but allow them to work together. In Tapestry components are somewhat isolated from each other however there is a way
+to share data across a group of components called Environmental Services.
+</p>
+<p>
+So the idea is to create environments for each component and control all of them with a common class. That class could
+be a component but I'm going to use a mixin instead. This way each component just renders the interface. All the controlling
+logic is in the mixin. Hopefully this will allow plugging the pieces together in various ways. 
+</p>
+<h3>Requirements</h3>
+<p>
+I'm taking a different approach to the requirements this time. I've created a sample template I'd like to implement.
+</p>
+<pre>
+ &lt;t:any t:mixins="tb/pager" source="items"&gt;
+    &lt;t:tb.pagination/&gt;
+        &lt;t:tb.mediagrid row="item"&gt;
+        &lt;a href="#123"&gt;
+            &lt;img class="thumbnail" src="${url}"/&gt;
+            &lt;h3&gt;${item.mediaTitle}&lt;/h3&gt;&lt;button class="btn"&gt;+&lt;/button&gt;
+        &lt;/a&gt;
+        &lt;/t:tb.mediagrid&gt;     
+    &lt;t:tb.pagination/&gt;
+&lt;/t:any&gt;
+</pre>
+<p>
+The idea is the pager mixin is the controller and components inside the 'any' component may be under it's control. 
+I can put as many pagination controls inside the 'any' component as I like and they just work. I can even mix
+different kinds as long as they obey the rules.
+</p>
+<h3>Implementation</h3>
+<p>
+The first step is to control the components via the environment instead of input parameters. After some experimenting
+I decided simple is better and I changed my input parameters to this.
+<pre>
+@Property
+@Environmental
+private PaginationEnvironment values;
+
+@Parameter(value="values.currentPage",required=true)
+private Integer currentPage; 
+</pre>
+I can still pass values via parameters but the default values now come from the environment. PaginationEnviroment is an
+interface so it's possible to interchange various implementations of environment and components. The next step is getting
+the objects into the environment. To do this I need a pager mixin. As an experiment I created this:
+<pre>
+@Parameter(required=true)
+private List<T> source;
+		
+@SetupRender
+void setupRender()  {
+	Integer currentPage = valueEncoderSource.getValueEncoder(Integer.class).toValue(request.getParameter("gallery"));
+				
+	LoopValues<T> loopSupport = new LoopValues<T>();
+   	loopSupport.setSource( source.subList(5, 7) );
+   	
+   	PaginationValues paginationValues = new PaginationValues();
+   	paginationValues.setCurrentPage(currentPage);
+   	paginationValues.setItemCount(source.size());
+   	
+	environment.push(LoopEnvironment.class, loopSupport);
+	environment.push(PaginationEnvironment.class, paginationValues);
+}
+</pre>
+For now this just creates the environment and makes it available to the contained components. There is also an
+afterRender to clean things up. A side effect of this is it solved my @ActivationRequestParameter problem. 
+Now that logic is contained in the mixin so the problem does no spill into my other code. Each part now has
+it's job to do. The mixin figures out what part of the list needs to be displayed by the loop. It also 
+passes the right values to the pagination component so it can display the right thing. Each of the sub components
+now just display their part. The loop does not know it's only displaying a subset of the data and the pagination
+component does not know there is a loop. The pager mixin does not care how many pagination components there are
+or how they work.
+</p>
+<p>
+It took a bit of experimenting to come up with this plan. At first I went off and created a new set of
+annotations to handle putting the environment into the parameters. After a few failed attempts it 
+occurred to me the functionality was already there. One problem/feature with this approach is things outside
+the 'any' tag have no access to the inner workings. I think I'm also going to create some events so that
+the containers can have some say in how things work.
+</p>
+<h3>Conclusion</h3>
+<p>
+Now that I have things prototyped I'm happy with the results and I'm going to create some real components. It appears
+this approach will allow the various parts to cooperate without knowing about each other. It also allows
+things to just work in the simple case but provides a lot of customization if needed.
+</p>
+<h3>Feature Request</h3>
+<p>
+It would be nice if all components could use the environment for defaults. To do this add environment to the
+@Parameter annotation:
+<pre>
+@Parameter(environment=com.trsvax.PaginationEnvironment.class,required=true)
+private Integer currentPage;
+</pre>
+This would get the environment and look for a getCurrentPage method. Next just push defaults into the 
+environment with a AppModule. Lastly an environmentPush mixin to override the defaults.
+ There may be some overlap with MetaData here. I need to read more about it.
+</p>
+</div>

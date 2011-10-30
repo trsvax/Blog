@@ -1,0 +1,96 @@
+<div>
+<h3>Overview</h3>
+<p>
+Now that I have a proof of concept Media Grid it's time to build a 
+<a href="http://twitter.github.com/bootstrap/">Bootstrap</a> 
+module. While it's possible to use 
+Tapestry and Bootstrap together by just using the css I think it's easier to code &ltlabel/&gt; instead of trying
+to remember all the css rules. I also like to use Enums in the java code instead of strings. I'm going to use
+the jQuery module because I prefer jQuery and Bootstrap also uses jQuery.
+</p>
+<h3>Requirements</h3>
+<ol>
+<li>Include the Bootstrap css and javascript in the classpath</li>
+<li>Build widget mixins for the Bootstrap javascript</li>
+<li>Integrate media grid with pagination</li>
+<li>Allow media grid to progressive load as the user scrolls</li>
+<li>Build component wrappers for various Bootstrap items such as alerts</li>
+<li>Integrate the Tapestry alerts with the Bootstrap alerts</li>
+<li>Allow the various components to use the environment for parameter defaults</li>
+<li>Build a mixin that can push objects into the environment</li>
+</ol>
+<h3>Implementation</h3>
+<p>
+There is a lot going on here but most is just typing. The first step is to create all the Interfaces and Enums
+needed by the components and then implement the interfaces. I decided to put all this in an environment 
+<a href="https://github.com/trsvax/tapestry-bootstrap/tree/master/src/main/java/com/trsvax/bootstrap/environment">package</a>.
+The interfaces contain the setable input parameters for the components. The Enums are just the values that can be set.
+For example AlertType could be info, warning or error. The implementations are just beans.
+</p>
+<p>
+The components are slightly more interesting. For example the 
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/components/BasicAlert.java">BasicAlert</a> 
+component contains:
+<pre class="prettyprint">
+	@Parameter(value="prop:alert?.type",defaultPrefix="literal")
+	private String type;
+	
+	@SuppressWarnings("unused")
+	@Environmental(false)
+	@Property
+	private AlertEnvironment alert;
+</pre>
+This finds an environment (if there is one) that implements the AlertEnvironment interface. The parameter default
+uses that environment if it's not null to set the type string. I also made the default prefix "literal". This
+allows the values to be set as strings in the tml but as Enums in java. Tapestry magically does all the conversion.
+Most of the components are just variations of the same.
+</p>
+<p>
+The media grid component is built from various parts. First I needed a loop but I wanted to be able to set
+the source via the environment so I built a 
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/components/Loop.java">wrapper</a>
+for the Tapestry loop. Next I built the 
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/components/Pagination.java">pagination</a>
+ component. It's just the one covered before but able to recieve is parameters via the environment. This also solved
+ my ActivationRequestParameter dilemma. Now the paginator just gets the current page from the environment. Then
+ there is the 
+ <a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/mixins/InfiniteScroll.java"> InfiniteScroll mixin</a>
+ thanks to <a href="http://infinite-scroll.com/">Paul Irish & Luke Shumard</a>. This allows the grid to refresh as
+ the users scrolls. Finally and perhaps most important is the
+ <a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/mixins/Pager.java">pager mixin</a>.
+ This acts as the controler for the whole thing by pushing input parameters to the various pieces via the environment.
+ Here is the MediaGrip template:
+ <pre class="prettyprint">
+ &lt;t:any t:id="mediaGrid" t:mixins="tb/pager" source="source" parameterName="parameterName" &gt;
+      &lt;ul t:type="any" t:id="gridContent" class="media-grid gallery" t:mixins="tb/infiniteScroll"
+      	options='{navSelector: ".pagination", nextSelector: "a#next:last", itemSelector: "#gridContent li"}'&gt;
+	      &lt;t:tb.loop t:id="loop"&gt;
+	      	&lt;li&gt;&lt;t:body/&gt;&lt;/li&gt;
+	      &lt;/t:tb.loop&gt;
+      &lt;/ul&gt;     
+      &lt;t:tb.pagination/&gt;
+&lt;/t:any&gt;
+ </pre>
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/components/MediaGrid.java">MediaGrid.java</a>
+is less interesting because it contains no code just declarations.
+</p>
+<p>
+Finally there is the 
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/mixins/PushEnvironment.java">PushEnvironment mixin</a>.
+This mixin just pushes objects into the environment. Since this requires an interface I created an
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/environment/Environment.java">Environment annotation</a>
+to that includes the interface with the implementation. I tried a few other ways to decided this was the most reliable.
+</p>
+<h3>Conclusion</h3>
+<p>
+I think this module is a good example of how little code it takes to create a useful set of components. According to wc
+there are about 3500 lines of code. Most of it is really boilerplate and generated by Eclipse. After I really got started it took about 2 days working part time to put the
+module together.
+</p>
+<p>
+The new ground here is defaulting parameters via the environment and using a mixin to control a set of components.
+Using the environment to set defaults allows fine grain control over a set of components. By combining this with a
+mixin it's possible to create a super component built from a set of loosely connected sub components with all the
+logic in the mixin. Since each part is pluggable the developer has complete control over the parts.
+</p>
+</div>

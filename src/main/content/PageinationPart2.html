@@ -1,0 +1,35 @@
+<div>
+<h3>Overview</h3>
+<p>
+Turns out my Pagination solution was not as clever as I thought. The ActivationRequestParameter only works in pages and
+I need it to work in a component. Fortunately Tapestry provides a solution to these kinds of problems. In most cases you
+can change/override the behavior of the framework without modifying the framework code directly.
+</p>
+<h3>Requirements</h3>
+<ul>
+<li>Make ActivationRequestParameter do what I want</li>
+</ul>
+<h3>Implementation</h3>
+<p>
+Tapestry works by transforming your pages/component classes into something that handles all the ugly parts of web
+development for you. In this case I want a request parameter to populate a field in my component. While that's easy
+enough I don't want to write the code every time I do it because like most things it's never and simple as it seems.
+</p>
+<p>
+Unfortunately in my case this annotation uses the onActivate event to populate the fields. That's great except
+components don't have an onActivate. By design Tapestry allows me to provide my own code code generation methods.
+The plan is to use a setupRender method instead of onActivate to accomplish the same thing. To do this create
+a <a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/services/ComponentRequestParameterWorker.java">ComponentClassTransformWorker2</a>.
+</p>
+<p>
+Since I wanted the same basic functionality of ActivationRequestParameterWorker I started with that and just changed
+how the event handling works. First I find all the annotated fields. If there are some I add a setupRender method.
+Then I advise that method to set the values and finally invoke the real method. I've got some more cleanup but this
+is enough to convince me the pagination component will work.
+</p>
+<h3>Conclusion</h3>
+<p>
+Class rewriting is what makes the magic of Tapestry happen. The good news is like most magic it's obvious once you
+know the trick.
+</p>
+</div>

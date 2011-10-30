@@ -1,0 +1,27 @@
+<div>
+<h3>Overview</h3>
+<p>
+Today is going to be easy. I'm just going to create a media grid component by wrapping the Tapestry loop component.
+</p>
+<h3>Requirements</h3>
+<ul>
+<li>Follow semantics of Tapestry grid but for media</li>
+</ul>
+<h3>Implementation</h3>
+<p>
+This is just a wrapper for the Tapestry loop component with the right css classes for displaying the content in a Bootstrap
+template.
+For this I'll need a 
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/MediaGridPost/src/main/java/com/trsvax/bootstrap/components/MediaGrid.java">component class</a>
+ and a 
+ <a href="https://github.com/trsvax/tapestry-bootstrap/blob/MediaGridPost/src/main/resources/com/trsvax/bootstrap/components/MediaGrid.tml">template</a>.
+As you can see not much going
+on here. The component just passes it's parameter and body on to the loop component.
+</p>
+<h3>Conclusion</h3>
+<p>
+So why did I bother with this since it's so simple. First I don't have to remember the semantics for a Bootstrap media grid.
+Secondly if I decide to use some other template I can just substitute a different media grid component. And most important
+this component is about to get much more complicated by integrating the pagination component to support paging.
+</p>
+</div>

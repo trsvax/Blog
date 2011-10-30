@@ -1,6 +1,7 @@
 package com.trsvax.pages;
 
 import org.apache.tapestry5.annotations.BeginRender;
+import org.apache.tapestry5.annotations.Import;
 import org.apache.tapestry5.annotations.PageActivationContext;
 import org.apache.tapestry5.annotations.Property;
 import org.apache.tapestry5.ioc.annotations.Inject;
@@ -11,6 +12,8 @@ import com.trsvax.interfaces.entities.Blog;
 /**
  * Start page of application blog.
  */
+@Import(stylesheet="classpath:/com/trsvax/bootstrap/google-code-prettify/prettify.css",
+library="classpath:/com/trsvax/bootstrap/google-code-prettify/prettify.js")
 public class Index
 {
 	@PageActivationContext
