@@ -1,0 +1,52 @@
+<div>
+<h3>Overview</h3>
+<p>
+I've gotten several requests for an RSS feed to this Blog. I could find some free one but I decided to write one.
+</p>
+<h3>Requirements</h3>
+<ol>
+<li>Add RSS to Blog</li>
+<li>Leave open the possibility for Atom</li>
+</ol>
+<h3>Implementation</h3>
+<p>
+I'm going to use JAXB to generate the XML and then the standard Java XML library to 
+transform it into RSS format. This decouples the output formats
+from my internal java objects and JAXB is about as easy as it gets. There is not a lot of Tapestry here just the
+StreamResponse to return the XML. First the JAXB class:
+<pre class="prettyprint">
+@XmlRootElement
+public class Blogs {
+	private List<Blog> blogs;
+	
+	public Blogs() {		
+	}
+	
+	public Blogs(List<Blog> blogs) {
+		this.blogs = blogs;
+	}
+
+	
+	@XmlElement(name="blog",type=BlogImpl.class)
+	public List<Blog> getBlogs() {
+		return blogs;
+	}
+		
+}
+</pre>
+The only trick here it the type in XmlElement. Since Blog is an interface I have to tell JAXB what the real
+class is.
+<p>
+Next comes the
+<a href="https://github.com/trsvax/Blog/blob/master/src/main/java/com/trsvax/services/XMLImpl.java">XML service</a>.
+This does three things. First it uses JAXB to convert the object to XML. Next it uses 
+<a href="https://github.com/trsvax/Blog/blob/master/src/main/webapp/WEB-INF/xslt/rss.xslt">XSLT</a> 
+to transform that XML
+into the correct format and finally it converts that XML to a StreamResponse.
+</p>
+<h3>Summary</h3>
+<p>
+Pretty easy and I now have a general purpose XML converter. To create the ATOM format I just need to write some xslt.
+I also use the same technique to create PDFs by using FOP. Someday I'll add a streamPDF method.
+</p>
+</div>

@@ -1,0 +1,75 @@
+<div>
+<h2>Overview</h2>
+<p>
+After using parameters set via the environment for a few days I'm finding the property syntax a bit painful
+and error prone. The compiler can't help because everything is wrapped up in a string. I'd like to just
+say
+<pre class="prettyprint">
+@Parameter(value=AlertEnvironment.type,defaultPrefix="literal")
+private String type;
+</pre>
+and be done with it.
+</p>
+<h2>Requirements</h2>
+<p>
+Create an environment binding that connects component parameters to the environment.
+</p>
+<h2>Implementation</h2>
+<p>
+Bindings require two classes a factory and the class that does the work. The idea is you take a string 
+"env:com.trsvax.bootstrap.environment.AlertEnvironment.type" and use the part before the ":" to determine
+the factory. Then factory builds an object for the following expression.
+</p>
+<p>
+For this binding the expression will be the class name of the environment interface followed by a property expression.
+I built a prototype just using reflection but Tapestry is all about speed so I looked up the source for PropBindingFactory
+ started from there and created 
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/services/EnvironmentBindingFactory.java">EnvironmentBindingFactory</a>. 
+The basic idea is you create a conduit to the method in the target object. From there some magic
+plastic stuff happens.
+</p>
+<pre class="prettyprint">
+Integer index = expression.lastIndexOf(".");
+String className = expression.substring(0, index);
+String propertyExpression = expression.substring(index+1);
+Class enviromentInterface = Class.forName(className);
+PropertyConduit conduit = source.create(enviromentInterface, propertyExpression);
+	
+//StringInterner is internal
+String toString = String.format("EnvironmentBinding[%s %s(%s)]", description, container.getCompleteId(), expression);
+return new EnvironmentBinding(location,conduit,toString,environment,enviromentInterface);
+</pre> 
+<p>
+First the expression is split into the class name and the property expression. Both of these are passed
+to the conduit service and out comes a PropertyConduit. Since I'm using a PropertyConduit the property
+expression can be more than a property name. The conduit uses the same grammer as the prop binding.
+</p>
+<p>
+The next step is to create
+<a href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/services/EnvironmentBinding.java">EnvironmentBinding</a>.
+This just implements Binding creating the get/set methods. I also set isInvariant to false. This means
+the get method result will not be cached. 
+</p>
+<p>
+To use the new binding I created some static strings in the environment interfaces.
+<pre class="prettyprint">
+public interface AlertEnvironment {
+	public final static String type = "env:com.trsvax.bootstrap.environment.AlertEnvironment.type";
+	public AlertType getType();
+}
+</pre>
+so now the component parameters are just
+<pre class="prettyprint">
+@Parameter(value=AlertEnvironment.type,defaultPrefix="literal")
+private String type;
+</pre>
+and there is no need for an environment property in the component.
+</p>
+<h2>Conclusion</h2>
+<p>
+Binding prefixes are powerful and easy to implement. Unfortunately they are just strings so the compiler
+can't ensure they are correct but making then static strings means you can find them and have one place
+in the code to control them.
+</p>
+
+</div>
