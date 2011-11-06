@@ -118,8 +118,14 @@ public class BlogDAOAWS implements BlogDAO {
 		}		
 		
 		try {
-			byte[] b = new byte[(int) o.getObjectMetadata().getContentLength()];
-			o.getObjectContent().read(b);
+			Integer off = 0;
+			Integer len = (int) o.getObjectMetadata().getContentLength();
+			byte[] b = new byte[len];
+						
+			while ( off < len )  {				
+				off += o.getObjectContent().read(b, off, len - off);
+			}
+
 			blog.setBody(new String(b));
 		} catch (IOException e) {
 			logger.error("Can't read body {}",e);

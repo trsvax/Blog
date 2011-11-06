@@ -1,0 +1,151 @@
+<div>
+	<h2>Overview</h2>
+	<p>I do a lot of woodworking and one thing I've learned over the
+		years, "You have to use jigs". Sometimes you can buy them but most of
+		the time you just make them from a few scraps laying around. They
+		don't need to be pretty and many times you just throw them away after
+		a project. Some of them stick around and I have a shelf full of
+		strange/ugly really useful ones.</p>
+	<p>So what does this have to do with web development? Web sites are
+		built from individual pages that need to fit together. If everything
+		is not quit right then no amount of finish work will fix it. So I
+		build jigs to create pages and components. In the old days that meant
+		creating a base class and making all your pages inherit from that. Seems
+		like a good idea but before long the base class is thousands of lines
+		of unrelated code. It's like a super tool that tries to do everything
+		but ends up doing nothing well.</p>
+	<p>So the problem at hand is I've used the activation context to pass state
+		around. That was fine to start with but it's a bit limiting so I
+		decided to switch to session state. Unfortunately now I must find all
+		the pages that do this, remove the activation context, add session
+		state then create a setup render method to initialize it. After the
+		second page I was thinking there has to be a better way.</p>
+	<h2>Requirements</h2>
+	<p>Create a way to declare the value for a property so I can do
+		this:</p>
+	<pre class="prettyprint">
+@Property
+@Connect(Globals.ORGANIZATION)
+private Organization organization;
+</pre>
+	<p></p>
+	<h2>Implementation</h2>
+	<p>Parameters already have this feature so I'll start from there.
+		It's the binding expression that makes this really powerful. In ths
+		case I'm going to use the expression
+		"session:com.trsvax.web.State.currentOrganization". This expression
+		will lookup the session state com.trsvax.web.State then connect the
+		property to the currentOrganizaion property. To do this I'm going to
+		need a few parts.</p>
+	<p>
+		First I need a binding that can get things from the session. I have
+		one that gets things from the environment and this is pretty much the
+		same thing. A binding is made from by a factory.
+		In this case the <a
+			href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/services/SessionBindingFactory.java">SessionBindingFactory</a>
+		handles that task:
+	</p>
+	<pre class="prettyprint">
+try {
+Integer index = expression.lastIndexOf(".");
+String className = expression.substring(0, index);
+String propertyExpression = expression.substring(index+1);
+Class stateClass = Class.forName(className);
+PropertyConduit conduit = source.create(stateClass, propertyExpression);
+	
+//StringInterner is internal
+String toString = String.format("SessionBinding[%s %s(%s)]", description, 
+    container.getCompleteId(), expression);
+return new SessionBinding(location,conduit,toString,state,stateClass);
+}  catch (Exception ex) {
+    throw new TapestryException(ex.getMessage(), location, ex);
+}
+</pre>
+	<p>
+		Since this is a jig I'm not going to get hung up on error handling.
+		I'm going to assume the input is correct and if something goes wrong
+		just throw an exception. Remember the expression must be final
+		static so if it works in dev it should be OK. If things go right I end
+		up with a binding to a property expression in my session state. The <a
+			href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/services/SessionBinding.java">SessionBinding</a>
+		class implements Binding and mostly just handles the get/set
+		operations.
+	</p>
+	<p>Next I need a way to connect the binding with the property.
+		First I'm going to mark the property with an annotation.</p>
+	<pre class="prettyprint">
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Connect {
+
+	public String value();
+
+}
+</pre>
+	<p>Note: Always (and I mean ALWAYS) have
+		@Retention(RetentionPolicy.RUNTIME). I've spent many hours trying to
+		figure out why my worker was not being called because of this. To me
+		this is the perfect example of a broken default. The 5 compiler
+		writers in the world thought RetentionPolicy.SOURCE was correct because that's what
+		they needed but the rest of us would rather have
+		RetentionPolicy.RUNTIME.</p>
+	<p>
+		Next it's time to pull everything together with the <a
+			href="https://github.com/trsvax/tapestry-bootstrap/blob/master/src/main/java/com/trsvax/bootstrap/services/ConnectWorker.java">ConnectWorker</a>.
+		This is where plastic comes in. I'm going to find the properties
+		marked by Connect annotation then create a conduit to the binding
+		expression described by the annotation. While this sounds complicated
+		thanks to plastic it does not require much code. The two interesting
+		parts are finding the properties
+	</p>
+	<pre class="prettyprint">
+for ( PlasticField field : plasticClass.getFieldsWithAnnotation(Connect.class) ) {
+			transformField(field);
+}
+</pre>
+	<p>and creating the binding.</p>
+	<pre class="prettyprint">
+Binding binding = bindingSource.newBinding(toString, resources, "prop", expression);
+</pre>
+	<p>Finally add the parts into the AppModule.</p>
+	<pre class="prettyprint">
+public static void bind(ServiceBinder binder) {
+	binder.bind(BindingFactory.class,SessionBindingFactory.class).withId("SessionBindingFactory");
+	binder.bind(BindingFactory.class,EnvironmentBindingFactory.class).withId("EnvironmentBindingFactory");
+}
+    
+public static void contributeBindingSource(MappedConfiguration<String
+			, BindingFactory> configuration,
+		@InjectService("SessionBindingFactory") BindingFactory sessionBindingFactory,
+		@InjectService("EnvironmentBindingFactory") BindingFactory environmentBindingFactory
+		) {
+    configuration.add("session", sessionBindingFactory);  
+    configuration.add("env", environmentBindingFactory);
+}
+
+@Contribute(ComponentClassTransformWorker2.class)   
+public static void  provideWorkers(OrderedConfiguration<ComponentClassTransformWorker2> workers) {    
+    workers.addInstance("ConnectWorker", ConnectWorker.class);
+} 
+</ComponentClassTransformWorker2></String>
+	</pre>
+
+	<h2>Conclusion</h2>
+	<p>I could have taken the easy way out and just fixed all my code,
+		but is that really the easy way? First I had a lot of pages and I
+		suspect this is actually less lines of code. Secondly if/when I change
+		my mind again I just need to change the property expression defined by
+		Globals.ORGANIZATION. Since I've used a binding expression I can
+		create a new binding if needed. For example if I decide using the
+		context really was better I could use "context:$1" meaning pull the
+		first value from the context part of the url. In fact what I really
+		think will happen is make URLs like /OrgName/users where OrgName is
+		what I had in context before. To do this I'll create a binding like
+		"url:$1" and make it work. Lastly since I've solved the problem by combining
+		smaller jigs I can use them independently as above by creating
+		different bindings for @Connect or using the session binding any place
+		a binding express may be used. For example in my .tml I can use
+		${session:name} to pull a persons name from the session.</p>
+	<p>So when I find myself writing the same code over and over across
+		multiple pages I know it's time to create a jig and use plastic
+		to hold them together.</p>
+</div>
